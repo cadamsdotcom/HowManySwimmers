@@ -1,0 +1,10 @@
+flask
+torch
+torchvision
+opencv-python
+numpy
+pandas
+requests
+yolov5
+face_recognition
+dlib

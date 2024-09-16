@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HowManySwimmers</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0 auto;
+            max-width: 100vw;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        #error {
+            color: red;
+        }
+
+        #loading {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        #output-container {
+            margin-top: 20px;
+            overflow-x: auto;
+            max-width: 100%;
+        }
+
+        #output-image {
+            max-width: none;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>HowManySwimmers</h1>
+    <p>This app uses face detection to count how many swimmers are in a Salties photo. It's not perfect - it misses some
+        faces, but you can just count those separately. Upload an image to get a count!
+    </p>
+    <form id="upload-form" enctype="multipart/form-data">
+        <input type="file" id="image-upload" name="file" accept="image/*" required>
+        <button type="submit">Detect Swimmers' Faces!</button>
+    </form>
+    <div id="loading">
+        <div class="spinner"></div>
+        <span>Processing image...</span>
+    </div>
+    <div id="result"></div>
+    <div id="error"></div>
+    <div id="output-container">
+        <img id="output-image" src="" alt="Processed image" style="display: none;">
+    </div>
+
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').textContent = '';
+            document.getElementById('error').textContent = '';
+            document.getElementById('output-image').style.display = 'none';
+
+            fetch('/', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loading').style.display = 'none';
+
+                    if (data.error) {
+                        document.getElementById('error').textContent = data.error;
+                    } else {
+                        document.getElementById('result').textContent = 'Number of faces detected: ' + data.count;
+                        document.getElementById('output-image').src = 'data:image/jpeg;base64,' + data.image;
+                        document.getElementById('output-image').style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('error').textContent = 'An error occurred: ' + error;
+                });
+        });
+    </script>
+</body>
+
+</html>
