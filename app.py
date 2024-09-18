@@ -7,12 +7,27 @@ import base64
 
 app = Flask(__name__)
 
+def enhanced_upscale(image, scale_factor=2):
+    # Upscale using INTER_CUBIC
+    upscaled = cv2.resize(image, None, fx=scale_factor, fy=scale_factor, interpolation=cv2.INTER_CUBIC)
+
+    # Apply slight Gaussian blur
+    blurred = cv2.GaussianBlur(upscaled, (0, 0), 1)
+
+    # Sharpen the image
+    sharpened = cv2.addWeighted(upscaled, 1.5, blurred, -0.5, 0)
+
+    return sharpened
+
 def process_image(image):
     # Read image file
     image_np = cv2.imdecode(np.frombuffer(image.read(), np.uint8), cv2.IMREAD_COLOR)
     
+    # Upscale the image using our enhanced method
+    upscaled = enhanced_upscale(image_np, scale_factor=2)
+
     # Convert the image from BGR color (which OpenCV uses) to RGB color
-    rgb_image = cv2.cvtColor(image_np, cv2.COLOR_BGR2RGB)
+    rgb_image = cv2.cvtColor(upscaled, cv2.COLOR_BGR2RGB)
     
     # Find all face locations in the image
     face_locations = face_recognition.face_locations(rgb_image)
@@ -23,11 +38,14 @@ def process_image(image):
     # Draw rectangles around the faces and add numbers
     for i, (top, right, bottom, left) in enumerate(face_locations_sorted, start=1):
         # Draw the rectangle
-        cv2.rectangle(image_np, (left, top), (right, bottom), (0, 255, 0), 2)
+        cv2.rectangle(upscaled, (left, top), (right, bottom), (0, 255, 0), 2)
         
         # Add the number
         font = cv2.FONT_HERSHEY_DUPLEX
-        cv2.putText(image_np, str(i), (left + 6, bottom - 6), font, 0.5, (255, 255, 255), 1)
+        cv2.putText(upscaled, str(i), (left + 6, bottom - 6), font, 0.5, (255, 255, 255), 1)
+
+    # Downscale the image back to original size for display
+    image_np = cv2.resize(upscaled, (image_np.shape[1], image_np.shape[0]), interpolation=cv2.INTER_AREA)
     
     # Convert the image to base64 for sending to frontend
     _, buffer = cv2.imencode('.jpg', image_np)
