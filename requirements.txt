@@ -8,3 +8,5 @@ requests
 yolov5
 face_recognition
 dlib
+MTCNN
+tensorflow
