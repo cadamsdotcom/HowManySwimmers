@@ -38,16 +38,37 @@ def process_image(image):
     # Sort faces from left to right
     faces_sorted = sorted(faces, key=lambda x: x['box'][0])
 
-    # Draw rectangles around the faces and add numbers
+    # Blur the faces and add numbers with green outline
     for i, face in enumerate(faces_sorted, start=1):
         x, y, width, height = face['box']
 
-        # Draw the rectangle
+        # Extract the face region
+        face_region = upscaled[y:y+height, x:x+width]
+
+        # Apply less intense Gaussian blur to the face region
+        blurred_face = cv2.GaussianBlur(face_region, (25, 25), 10)
+
+        # Replace the face region with the blurred version
+        upscaled[y:y+height, x:x+width] = blurred_face
+
+        # Draw the green rectangle
         cv2.rectangle(upscaled, (x, y), (x+width, y+height), (0, 255, 0), 2)
 
-        # Add the number
+        # Add the number with background
         font = cv2.FONT_HERSHEY_DUPLEX
-        cv2.putText(upscaled, str(i), (x + 6, y + height - 6), font, 0.5, (255, 255, 255), 1)
+        font_scale = 0.5
+        font_thickness = 1
+        text = str(i)
+        text_size = cv2.getTextSize(text, font, font_scale, font_thickness)[0]
+        text_x = x + 6
+        text_y = y + height - 6
+
+        # Draw black background rectangle
+        cv2.rectangle(upscaled, (text_x - 2, text_y - text_size[1] - 2),
+                      (text_x + text_size[0] + 2, text_y + 2), (0, 0, 0), -1)
+
+        # Draw white text
+        cv2.putText(upscaled, text, (text_x, text_y), font, font_scale, (255, 255, 255), font_thickness)
 
     # Downscale the image back to original size for display
     image_np = cv2.resize(upscaled, (image_np.shape[1], image_np.shape[0]), interpolation=cv2.INTER_AREA)
