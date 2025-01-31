@@ -2,6 +2,8 @@
 
 This Streamlit application detects faces in images and applies a blur effect while numbering each face from left to right.
 
+It's similar to the app in the root directory but doesn't do upscaling, has a bit of memory debugging, and crashes on Streamlit community cloud when it goes over 1GB of memory (it needs about 15GB for a 2.5MB image, even without upscaling!)
+
 ## Features
 - Face detection using MTCNN
 - Automatic face blurring
