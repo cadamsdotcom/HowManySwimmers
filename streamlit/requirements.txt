@@ -1,0 +1,7 @@
+importlib_metadata>=4.13.0
+mtcnn
+opencv-python-headless
+numpy
+streamlit
+tensorflow
+Pillow
