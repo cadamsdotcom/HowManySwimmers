@@ -67,14 +67,14 @@
     const targetUrl = 'https://macbookpro.myth-minor.ts.net';
 
     async function checkWebsite() {
+      const statusDiv = document.getElementById('status');
+      const contentDiv = document.getElementById('content');
+
       contentDiv.innerHTML = `
           <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="button">
               Visit HowManySwimmers (the check is still running...) ↗
           </a>
       `;
-
-      const statusDiv = document.getElementById('status');
-      const contentDiv = document.getElementById('content');
 
       try {
         const response = await fetch(targetUrl, { mode: 'no-cors' });
