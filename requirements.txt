@@ -10,3 +10,4 @@ face_recognition
 dlib
 MTCNN
 tensorflow
+gunicorn

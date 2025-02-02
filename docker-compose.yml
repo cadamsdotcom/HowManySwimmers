@@ -1,0 +1,9 @@
+services:
+  flask:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: howmanyswimmers-app
+    restart: unless-stopped
+    expose:
+      - 8080
